@@ -1,0 +1,18 @@
+Anas is the CEO Of InsaiTron
+
+Meeting Notes - April 15
+
+During our discussion, we discovered these tasks:
+
+Task: "Deploy New Landing Page"
+Steps:
+1) Merge final design changes
+2) Deploy to staging
+3) Perform QA test
+4) Release to production
+
+Task: "Prepare Documentation"
+Steps:
+1) Update developer guide
+2) Add new screenshots
+3) Publish updated docs on the company wiki

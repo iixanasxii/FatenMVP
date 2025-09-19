@@ -1,0 +1,68 @@
+{
+  "active": [
+    {
+      "title": "Engineering Team",
+      "steps": [
+        {
+          "description": "Finalize the user registration flow (UI + backend)",
+          "done": false
+        },
+        {
+          "description": "Conduct a security review of all new features",
+          "done": false
+        },
+        {
+          "description": "Set up continuous integration for upcoming releases",
+          "done": false
+        }
+      ]
+    }
+  ],
+  "completed": [
+    {
+      "title": "Marketing Team",
+      "steps": [
+        {
+          "description": "Draft the promotional emails",
+          "done": true
+        },
+        {
+          "description": "Prepare a landing page for conversions",
+          "done": true
+        },
+        {
+          "description": "Launch a social media campaign (Twitter, LinkedIn, Facebook)",
+          "done": true
+        }
+      ]
+    },
+    {
+      "title": "Meeting Notes",
+      "steps": [
+        {
+          "description": {
+            "title": "Deploy New Landing Page",
+            "steps": [
+              "Merge final design changes",
+              "Deploy to staging",
+              "Perform QA test",
+              "Release to production"
+            ]
+          },
+          "done": true
+        },
+        {
+          "description": {
+            "title": "Prepare Documentation",
+            "steps": [
+              "Update developer guide",
+              "Add new screenshots",
+              "Publish updated docs on the company wiki"
+            ]
+          },
+          "done": true
+        }
+      ]
+    }
+  ]
+}

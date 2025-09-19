@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="icon" type="image/png" href="/static/faten_logo-removebg-preview.png"
+  alt="Plantera Logo"> <!-- إذا كان لديك صورة لوجو باسم favicon.png -->
+
+  <title>Meetings Analyzer</title>
+  <style>
+
+@import url("https://fonts.googleapis.com/css2?family=Kufam:wght@700&family=Tajawal:wght@400;700&display=swap");
+    /* Gradient background + full-page flex layout */
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #71a7f7, #76a9f5, #3a83f0);
+      font-family: Arial, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Header bar with semi-transparent background */
+    header {
+      background-color: rgba(1, 3, 10, 0.8);
+      padding: 0rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    /* Logo styling */
+    header img {
+      height: 120px;
+      margin-right: 1rem;
+    }
+    /* Title styling */
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+    /* Container for the main content */
+    .container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    /* The recording button */
+    #record-btn {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-top: 2rem;
+    }
+    #record-btn:hover {
+      background-color: #0056b3;
+    }
+    /* Pulsing circle animation for "recording" effect */
+    .pulse-circle {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: red;
+      animation: pulse 1s infinite;
+      display: inline-block;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    @keyframes pulse {
+      0%   { transform: scale(1);   opacity: 0.8; }
+      50%  { transform: scale(1.5); opacity: 0.4; }
+      100% { transform: scale(1);   opacity: 0.8; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <!-- Add the Faten logo from your static/ folder -->
+    <img src="/static/faten_logo-removebg-preview.png" alt="Faten Logo" />
+    <h1 style="color: rgb(30, 141, 192);  font-family: 'Tajawal', sans-serif;    ; text-align: center;">Meetings Analyzer</h1>
+  </header>
+
+  <div class="container">
+    <!-- The fake record button -->
+    <button id="record-btn">Start Record</button>
+  </div>
+
+  <script>
+    let isRecording = false;
+    const btn = document.getElementById("record-btn");
+
+    btn.addEventListener("click", async () => {
+      if (!isRecording) {
+        // Start recording
+        isRecording = true;
+        btn.innerHTML = 'Recording the meeting <span class="pulse-circle"></span>';
+      } else {
+        // Stop recording -> show "Generating" for 6 seconds
+        btn.textContent = 'Generating the report...';
+
+        // Wait 6 seconds
+        await new Promise(resolve => setTimeout(resolve, 6000));
+
+        // Then call the server route to create the .txt file
+        await fetch('/generate_report', { method: 'POST' });
+
+        btn.textContent = 'Meeting report generated!';
+        isRecording = false;
+      }
+    });
+  </script>
+</body>
+</html>

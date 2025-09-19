@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="icon" type="image/png" href="/static/faten_logo-removebg-preview.png"
+                 alt="Plantera Logo"> <!-- إذا كان لديك صورة لوجو باسم favicon.png -->
+  <title>Faten Chat</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #99c2ff, #f3ec78, #af4261);
+      font-family: Arial, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background-color: rgba(6, 0, 87, 0.8);
+      text-align: center;
+      padding: 0rem 0;
+    }
+    header img {
+      height: 120px;
+    }
+    .chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    #chatbox {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      background-color: rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    .message {
+      display: block; /* ensure each message is in its own block (stacked) */
+      margin-bottom: 10px;
+      border-radius: 16px;
+      padding: 10px 15px;
+      max-width: 70%;
+      line-height: 1.4;
+      position: relative;
+    }
+    /* User messages */
+    .user-message {
+      background-color: #007bff;
+      color: #fff;
+      margin-left: auto; /* push to right side */
+      border-bottom-right-radius: 0;
+    }
+    /* Faten (AI) messages */
+    .faten-message {
+      background-color: #fff;
+      color: #000;
+      margin-right: auto; /* push to left side */
+      border-bottom-left-radius: 0;
+    }
+
+    /* Input row */
+    .input-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+    #user-input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    #send-btn {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      padding: 0 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #send-btn:hover {
+      background-color: #0056b3;
+    }
+
+    /* Loading spinner */
+    .loader {
+      border: 6px solid #f3f3f3;
+      border-radius: 50%;
+      border-top: 6px solid #007bff;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      display: none;
+      margin-left: 10px;
+      align-self: center;
+    }
+    @keyframes spin {
+      0%   { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="/static/faten_logo-removebg-preview.png" alt="Faten Logo" />
+  </header>
+
+  <div class="chat-container">
+    <div id="chatbox"></div>
+
+    <div class="input-row">
+      <input type="text" id="user-input" placeholder="Type your question..." />
+      <button id="send-btn">Send</button>
+      <div class="loader" id="loading-spinner"></div>
+    </div>
+  </div>
+
+  <script>
+    const chatbox = document.getElementById("chatbox");
+    const userInput = document.getElementById("user-input");
+    const sendBtn = document.getElementById("send-btn");
+    const loadingSpinner = document.getElementById("loading-spinner");
+
+    function appendMessage(side, text) {
+      const msgDiv = document.createElement("div");
+      msgDiv.classList.add("message");
+      if (side === "user") {
+        msgDiv.classList.add("user-message");
+      } else {
+        msgDiv.classList.add("faten-message");
+      }
+      chatbox.appendChild(msgDiv);
+      scrollToBottom(chatbox);
+
+      // Typing effect
+      let i = 0;
+      const speed = 20; // ms per character
+      function typeChar() {
+        if (i < text.length) {
+          msgDiv.innerHTML += text.charAt(i);
+          i++;
+          setTimeout(typeChar, speed);
+        }
+      }
+      typeChar();
+    }
+
+    function scrollToBottom(container) {
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function showLoading() {
+      loadingSpinner.style.display = "inline-block";
+    }
+
+    function hideLoading() {
+      loadingSpinner.style.display = "none";
+    }
+
+    sendBtn.addEventListener("click", () => {
+      const message = userInput.value.trim();
+      if (!message) return;
+      appendMessage("user", message);
+      userInput.value = "";
+      showLoading();
+
+      fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      })
+        .then(res => res.json())
+        .then(data => {
+          hideLoading();
+          appendMessage("faten", data.answer);
+        })
+        .catch(err => {
+          hideLoading();
+          console.error(err);
+          appendMessage("faten", "Error: Could not get response.");
+        });
+    });
+
+    userInput.addEventListener("keyup", (e) => {
+      if (e.key === "Enter") {
+        sendBtn.click();
+      }
+    });
+  </script>
+</body>
+</html>

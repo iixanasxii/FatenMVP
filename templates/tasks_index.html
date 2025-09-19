@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Faten - Task Manager</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #99c2ff, #f3ec78, #af4261);
+      font-family: Arial, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background-color: rgba(1, 0, 82, 0.8);
+      text-align: center;
+      padding: 0rem 0;
+    }
+    header img {
+      height: 150px;
+    }
+    .container {
+      flex: 1;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    .task-section {
+      background-color: rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      margin-bottom: 1rem;
+      padding: 1rem;
+    }
+    .task-item {
+      margin-bottom: 1rem;
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .task-title {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+    .task-steps {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .task-steps li {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .task-steps li button {
+      margin-left: auto;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .task-steps li button:hover {
+      background-color: #0056b3;
+    }
+    .done-step {
+      text-decoration: line-through;
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="/static/faten_logo-removebg-preview.png" alt="Faten Logo" />
+  </header>
+  <div class="container">
+    <div class="task-section" id="active-tasks-section">
+      <h2>Active Tasks</h2>
+      <div id="active-tasks"></div>
+    </div>
+    <div class="task-section" id="completed-tasks-section">
+      <h2>Completed Tasks</h2>
+      <div id="completed-tasks"></div>
+    </div>
+  </div>
+
+  <script>
+    async function fetchTasks() {
+      const res = await fetch("/api/tasks");
+      const data = await res.json();
+      return data;
+    }
+
+    async function markStepDone(taskIndex, stepIndex) {
+      const payload = { taskIndex, stepIndex };
+      const res = await fetch("/api/complete_step", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.status === "ok") {
+        renderTasks();
+      } else {
+        console.error(data.message);
+      }
+    }
+
+    function renderTasks() {
+      fetchTasks().then(data => {
+        const activeEl = document.getElementById("active-tasks");
+        const completedEl = document.getElementById("completed-tasks");
+        activeEl.innerHTML = "";
+        completedEl.innerHTML = "";
+
+        // Render ACTIVE tasks
+        data.active.forEach((task, tIndex) => {
+          const taskDiv = document.createElement("div");
+          taskDiv.classList.add("task-item");
+
+          const titleDiv = document.createElement("div");
+          titleDiv.classList.add("task-title");
+          titleDiv.textContent = task.title;
+
+          const stepsUl = document.createElement("ul");
+          stepsUl.classList.add("task-steps");
+
+          task.steps.forEach((step, sIndex) => {
+            const stepLi = document.createElement("li");
+            if (step.done) {
+              stepLi.classList.add("done-step");
+            }
+            stepLi.textContent = step.description;
+
+            if (!step.done) {
+              const btn = document.createElement("button");
+              btn.textContent = "Mark Done";
+              btn.onclick = () => markStepDone(tIndex, sIndex);
+              stepLi.appendChild(btn);
+            }
+            stepsUl.appendChild(stepLi);
+          });
+
+          taskDiv.appendChild(titleDiv);
+          taskDiv.appendChild(stepsUl);
+          activeEl.appendChild(taskDiv);
+        });
+
+        // Render COMPLETED tasks
+        data.completed.forEach(task => {
+          const taskDiv = document.createElement("div");
+          taskDiv.classList.add("task-item");
+
+          const titleDiv = document.createElement("div");
+          titleDiv.classList.add("task-title");
+          titleDiv.textContent = task.title;
+
+          const stepsUl = document.createElement("ul");
+          stepsUl.classList.add("task-steps");
+
+          task.steps.forEach(step => {
+            const stepLi = document.createElement("li");
+            stepLi.classList.add("done-step");
+            stepLi.textContent = step.description;
+            stepsUl.appendChild(stepLi);
+          });
+
+          taskDiv.appendChild(titleDiv);
+          taskDiv.appendChild(stepsUl);
+          completedEl.appendChild(taskDiv);
+        });
+      });
+    }
+
+    // Initial load
+    renderTasks();
+  </script>
+</body>
+</html>
